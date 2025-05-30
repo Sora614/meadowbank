@@ -5,9 +5,6 @@ const cors = require('cors');
 
 app.use(express.json());
 app.use(cors({ origin: '*' }));
-app.use(express.static('public')); // Serve static files from 'public' folder
-
-app.listen(3000, () => console.log('Server running on port 3000'));
 
 const config = {
   user: "ServerSubmit@meadowbank.database.windows.net",
@@ -19,10 +16,6 @@ const config = {
     trustServerCertificate: true
   }
 };
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html');
-});
 
 app.get('/data', async (req, res) => {
   try {
