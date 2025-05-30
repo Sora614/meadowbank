@@ -10,7 +10,8 @@
   "version": "1.0.0",
   "main": "dbsend.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node servertestorig.cjs",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "repository": {
     "type": "git",
