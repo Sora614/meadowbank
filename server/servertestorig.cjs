@@ -7,7 +7,11 @@ app.use(express.json());
 app.use(cors({ origin: '*' }));
 app.use(express.static('public'));
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
 
 const config = {
   user: "ServerSubmit@meadowbank.database.windows.net",
@@ -53,5 +57,5 @@ const { fname, lname, ssn, acctadd1, acctadd2, city, state, zipcode, initdep, ac
 
 });
 
-app.listen(3000, () => console.log('Server running at http://localhost:3000'));
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
 
