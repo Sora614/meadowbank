@@ -10,7 +10,7 @@
   "version": "1.0.0",
   "main": "dbsend.js",
   "scripts": {
-    "start": "node server/servertestorig.cjs",
+    "start": "node server/servertestorig.cjs"
   },
   "repository": {
     "type": "git",
