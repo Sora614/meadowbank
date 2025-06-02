@@ -4,8 +4,13 @@ const sql = require('mssql');
 const cors = require('cors');
 
 app.use(express.json());
-app.use(cors({ origin: '*' }));
 app.use(express.static('public'));
+app.use(cors({
+    origin: 'meadowbank-ejh5aueyfpa8f9e7.centralus-01.azurewebsites.net',
+    methods: ['POST', 'GET'],
+    allowedHeaders: ['Content-Type']
+}));
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
