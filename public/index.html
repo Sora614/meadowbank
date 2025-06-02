@@ -106,7 +106,7 @@
 <input type="radio" id="savings" name="accttype" value="Savings">
 <label class = "inputradio" for="savings">Savings</label><br><br>
 
-<input type="submit" value="Submit" onclick="formcheck()"> 
+<input type="submit" value="Submit"> 
 
 </form>
 
@@ -161,37 +161,40 @@ function formcheck(){
 	return result;
 }
 
-if (formcheck() == true){
-	document.getElementById('dataform').addEventListener('submit', async (e) => {
-		e.preventDefault();
-
-		const fname = document.getElementById('fname').value;
-		const lname = document.getElementById('lname').value;
-		const ssn = document.getElementById('ssn').value;
-		const acctadd1 = document.getElementById('acctadd1').value;
-		const acctadd2 = document.getElementById('acctadd2').value;
-		const city = document.getElementById('city').value;
-		const state = document.getElementById('state').value;
-		const zipcode = document.getElementById('zipcode').value;
-		const initdep = document.getElementById('initdep').value;
-
-		var accttype = "Empty";
-			if (document.getElementById('checking').checked) {
-				accttype = document.getElementById('checking').value;
-			} 
-			else if (document.getElementById('savings').checked) {
-				accttype = document.getElementById('savings').value;
-			}
-
-		const response = await fetch('/insert', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ fname, lname, ssn, acctadd1, acctadd2, city, state, zipcode, initdep, accttype })
-		});
-
-		const result = await response.text();
-		alert(result);
+document.getElementById('dataForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    formcheck();
 });
+
+
+if (formcheck() == true){
+
+	const fname = document.getElementById('fname').value;
+	const lname = document.getElementById('lname').value;
+	const ssn = document.getElementById('ssn').value;
+	const acctadd1 = document.getElementById('acctadd1').value;
+	const acctadd2 = document.getElementById('acctadd2').value;
+	const city = document.getElementById('city').value;
+	const state = document.getElementById('state').value;
+	const zipcode = document.getElementById('zipcode').value;
+	const initdep = document.getElementById('initdep').value;
+
+	var accttype = "Empty";
+		if (document.getElementById('checking').checked) {
+			accttype = document.getElementById('checking').value;
+		} 
+		else if (document.getElementById('savings').checked) {
+			accttype = document.getElementById('savings').value;
+		}
+
+	const response = await fetch('/insert', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ fname, lname, ssn, acctadd1, acctadd2, city, state, zipcode, initdep, accttype })
+	});
+
+	const result = await response.text();
+	alert(result);
 
 }
 
