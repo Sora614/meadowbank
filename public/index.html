@@ -17,7 +17,7 @@
 
 </div>
 
-<form class = "form" method="post" id="dataform">
+<form class = "form" method="post" id="dataform" onsubmit="formcheck()">
 
 <label class = "label">First Name</label><br>
 <input class = "inputtxt" type="text" id="fname" name="fname"><br><br>
@@ -25,7 +25,7 @@
 <label class = "label">Last Name</label><br>
 <input class = "inputtxt" type="text" id="lname" name="lname"><br><br>
 
-<label class = "label">Social Security Number</label><br>
+<label class = "label">Social Security Number (no dashes)</label><br>
 <input class = "inputtxt" type="text" id="ssn" name="ssn"><br><br>
 
 <label class = "label">Street Address line 1</label><br>
@@ -92,7 +92,7 @@
 	<option value="WY">Wyoming</option>
 </select><br><br>
 
-<label class = "label">Zip Code</label><br>
+<label class = "label">Zip Code (with 4 digit sub-code)</label><br>
 <input class = "inputtxt" type="text" id="zipcode" name="zipcode"><br><br>
 
 <label class = "label">Initial Deposit Amount</label><br>
@@ -111,6 +111,7 @@
 </form>
 
 <script>
+	
 	document.getElementById('dataform').addEventListener('submit', async (e) => {
 	e.preventDefault();
 
@@ -132,6 +133,59 @@
 			accttype = document.getElementById('savings').value;
 		}
 
+
+});
+
+function formcheck(){
+
+	var result = true;
+
+	let a = document.forms["dataform"]["fname"].value;
+  	if (a == "") {
+    	alert("First Name must be filled out");
+    result = false;
+  	}
+
+	let b = document.forms["dataform"]["lname"].value;
+  	if (b == "") {
+    	alert("Last Name must be filled out");
+    result = false;
+  	}
+
+	let c = document.forms["dataform"]["ssn"].value;
+  	if (c == "") {
+    	alert("Social Security Number must be filled out");
+    result = false;
+  	}
+
+	let d = document.forms["dataform"]["acctadd1"].value;
+  	if (d == "") {
+    	alert("Address Line 1 must be filled out");
+    result = false;
+  	}
+
+	let e = document.forms["dataform"]["city"].value;
+  	if (e == "") {
+    	alert("City must be filled out");
+    result = false;
+  	}
+
+	let f = document.forms["dataform"]["zipcode"].value;
+  	if (f == "") {
+    	alert("Zip Code must be filled out");
+    result = false;
+  	}
+
+	let g = document.forms["dataform"]["initdep"].value;
+  	if (g == "") {
+    	alert("Initial Deposit must be filled out");
+    result = false;
+  	}
+
+	return result;
+}
+
+if (formcheck() == true){
 	const response = await fetch('/insert', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
@@ -140,7 +194,8 @@
 
 	const result = await response.text();
 	alert(result);
-});
+}
+
 </script>
 </body>
 </html> 
