@@ -132,7 +132,7 @@
 			accttype = document.getElementById('savings').value;
 		}
 
-	const response = await fetch('meadowbank-ejh5aueyfpa8f9e7.centralus-01.azurewebsites.net/insert/', {
+	const response = await fetch('/insert', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ fname, lname, ssn, acctadd1, acctadd2, city, state, zipcode, initdep, accttype })
