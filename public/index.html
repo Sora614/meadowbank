@@ -161,13 +161,11 @@ function formcheck(){
 	return result;
 }
 
-document.getElementById('dataForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    formcheck();
-});
-
-
-if (formcheck() == true){
+document.getElementById('dataform').addEventListener('submit', async (e) => {
+	e.preventDefault();
+	if (!formcheck()) {
+        return; 
+    }
 
 	const fname = document.getElementById('fname').value;
 	const lname = document.getElementById('lname').value;
@@ -195,8 +193,9 @@ if (formcheck() == true){
 
 	const result = await response.text();
 	alert(result);
+});
 
-}
+
 
 </script>
 </body>
