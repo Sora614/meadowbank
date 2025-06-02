@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use(cors({
     origin: 'meadowbank-ejh5aueyfpa8f9e7.centralus-01.azurewebsites.net',
-    methods: ['POST', 'GET'],
+    methods: ['POST','GET','OPTIONS'],
     allowedHeaders: ['Content-Type']
 }));
 
