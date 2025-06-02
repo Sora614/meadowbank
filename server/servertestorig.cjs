@@ -12,6 +12,13 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
+process.on('uncaughtException', (err) => {
+    console.error('Unhandled Error:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Promise Rejection:', reason);
+});
 
 const config = {
   user: "ServerSubmit@meadowbank.database.windows.net",
@@ -24,9 +31,8 @@ const config = {
   }
 };
 
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html');
-});
+app.use(express.static(__dirname + '/public'));
+app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
 
 app.get('/data', async (req, res) => {
   try {
