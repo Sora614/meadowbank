@@ -5,7 +5,7 @@ const cors = require('cors');
 
 app.use(express.json());
 app.use(cors({ origin: '*' }));
-app.use(express.static('public')); // Serve static files from 'public' folder
+app.use(express.static('public'));
 
 app.listen(3000, () => console.log('Server running on port 3000'));
 
