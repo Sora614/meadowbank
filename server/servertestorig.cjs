@@ -47,9 +47,9 @@ const validateAddress = async (address) => {
                 query: address
             }
         });
-        console.log(response.data);
+        res.send(response.data);
     } catch (error) {
-        console.error('Error validating address:', error.response.data);
+        res.send('Error validating address:', error.response.data);
     }
 };
 
@@ -87,6 +87,4 @@ const { fname, lname, ssn, acctadd1, acctadd2, city, state, zipcode, initdep, ac
   }
 
 });
-
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
 
