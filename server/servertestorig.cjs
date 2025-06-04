@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const sql = require('mssql');
 const cors = require('cors');
+const axios = require('axios');
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -36,6 +37,23 @@ const config = {
   }
 };
 
+const validateAddress = async (address) => {
+    try {
+        const response = await axios.get('https://api.radar.io/v1/addresses/validate', {
+            headers: {
+                'Authorization': 'prj_test_sk_ef7ae85d89019a18fc15ff918e1e5d141d2f771e'
+            },
+            params: {
+                query: address
+            }
+        });
+        console.log(response.data);
+    } catch (error) {
+        console.error('Error validating address:', error.response.data);
+    }
+};
+
+
 app.use(express.static(__dirname + '/public'));
 app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
 
@@ -54,6 +72,8 @@ app.get('/data', async (req, res) => {
 app.post('/insert', async (req, res) => {
 
 const { fname, lname, ssn, acctadd1, acctadd2, city, state, zipcode, initdep, accttype } = req.body;
+
+  validateAddress(`${acctadd1}, ${city}, ${state}`);
 
   try {
     await sql.connect(config);
