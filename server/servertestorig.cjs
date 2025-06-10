@@ -113,7 +113,7 @@ app.post('/insert', async (req, res) => {
 
     console.log("Submission initiated");
 
-    /*try {
+    try {
       await sql.connect(config);
       await sql.query(`INSERT INTO Data VALUES ('${fname}','${lname}','${ssn}','${acctadd1}','${acctadd2}','${city}','${state}','${zipcode}',${initdep},'${accttype}');`);
       res.send('Data inserted successfully');
@@ -122,7 +122,7 @@ app.post('/insert', async (req, res) => {
       res.status(500).send(`Database error: ${err.message}`);
     } finally {
       await sql.close();
-    }*/
+    }
   }
 });
 
