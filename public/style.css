@@ -1,0 +1,31 @@
+body {
+    background: url("bg.png");
+}
+
+h1.a {
+    font: bold 24px verdana;
+}
+
+h2.a {
+    font: bold 18px verdana;
+}
+
+p.a{
+    font: bold 15px verdana;
+}
+
+label.label{
+    font: 12px verdana;
+}
+
+label.inputradio{
+    font: 12px verdana;
+}
+
+input.inputtxt{
+    width: 25%
+}
+
+select.select{
+    width: 25%
+}

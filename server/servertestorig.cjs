@@ -2,7 +2,37 @@ const express = require('express');
 const app = express();
 const sql = require('mssql');
 const cors = require('cors');
-const axios = require('axios');
+const fetch = require('node-fetch').default;
+
+const validateAddress = async (street, street2, city, state, zip) => {
+
+console.log(`${street} ${street2}, ${city}, ${state} ${zip}`);
+
+try {
+    const response = await fetch('https://api.postgrid.com/v1/addver/verifications', {
+        method: 'POST',
+        headers: {
+            'x-api-key': 'live_sk_7hS1d5rjodBBF1DJb4YMQi',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            address: {
+              line1: street,
+              line2: street2,
+              city: city,
+              provinceOrState: state,
+              postalCode: zip,
+              country: 'US'
+            }
+        })
+    });
+
+    const data = await response.json();
+    return data;
+} catch (error) {
+    return null;
+}
+};
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -11,7 +41,6 @@ app.use(cors({
     methods: ['POST','GET','OPTIONS'],
     allowedHeaders: ['Content-Type']
 }));
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
@@ -37,21 +66,6 @@ const config = {
   }
 };
 
-const validateAddress = async (address) => {
-    try {
-        const response = await axios.get('https://api.radar.io/v1/addresses/validate', {
-            headers: {
-                'Authorization': 'prj_test_sk_ef7ae85d89019a18fc15ff918e1e5d141d2f771e'
-            },
-            params: {
-                query: address
-            }
-        });
-        res.send(response.data);
-    } catch (error) {
-        res.send('Error validating address:', error.response.data);
-    }
-};
 
 
 app.use(express.static(__dirname + '/public'));
@@ -71,20 +85,44 @@ app.get('/data', async (req, res) => {
 
 app.post('/insert', async (req, res) => {
 
-const { fname, lname, ssn, acctadd1, acctadd2, city, state, zipcode, initdep, accttype } = req.body;
+  const { fname, lname, ssn, acctadd1, acctadd2, city, state, zipcode, initdep, accttype } = req.body;
 
-  validateAddress(`${acctadd1}, ${city}, ${state}`);
 
-  try {
-    await sql.connect(config);
-    await sql.query(`INSERT INTO Data VALUES ('${fname}','${lname}','${ssn}','${acctadd1}','${acctadd2}','${city}','${state}','${zipcode}',${initdep},'${accttype}');`);
-    res.send('Data inserted successfully');
-  } catch (err) {
-    console.error('Insert error:', err);
-    res.status(500).send(`Database error: ${err.message}`);
-  } finally {
-    await sql.close();
+  console.log("Validating address...");
+  const validatedAddress = await validateAddress(`${acctadd1}`,`${acctadd2}`,`${city}`,`${state}`,`${zipcode}`);
+
+  const addline = `${acctadd1} ${acctadd2}`;
+
+  const addressMatch = 
+  addline.replace(/\s+/g, '').toLowerCase() === validatedAddress.data.line1.replace(/\s+/g, '').toLowerCase() &&
+  city.replace(/\s+/g, '').toLowerCase() === validatedAddress.data.city.replace(/\s+/g, '').toLowerCase() &&
+  zipcode.replace(/\s+/g, '').toLowerCase() === validatedAddress.data.postalOrZip.replace(/\s+/g, '').toLowerCase();
+
+  if (validatedAddress) {
+      console.log("Validated Address Object:", validatedAddress);
+      res.json({
+          original: { acctadd1, acctadd2, city, state, zipcode },
+          validatedAddress,
+          addressMatch
+      });
+  } else {
+      res.status(400).json({ error: "Address verification failed." });
   }
 
+  if (addressMatch){
+
+    console.log("Submission initiated");
+
+    /*try {
+      await sql.connect(config);
+      await sql.query(`INSERT INTO Data VALUES ('${fname}','${lname}','${ssn}','${acctadd1}','${acctadd2}','${city}','${state}','${zipcode}',${initdep},'${accttype}');`);
+      res.send('Data inserted successfully');
+    } catch (err) {
+      console.error('Insert error:', err);
+      res.status(500).send(`Database error: ${err.message}`);
+    } finally {
+      await sql.close();
+    }*/
+  }
 });
 

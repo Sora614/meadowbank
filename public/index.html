@@ -3,7 +3,7 @@
 <meta charset="UTF-8">
 <title>Meadow Bank Account Application</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="">
+<link rel="stylesheet" href="style.css">
 <style>
 </style>
 
@@ -11,9 +11,9 @@
 
 <div class="Header">
 
- <h1>Welcome To Meadow Bank</h1>
- <h2>Account Application</h2>
- <p>Please enter the following information:</p>
+ <h1 class="a">Welcome To Meadow Bank</h1>
+ <h2 class="a">Account Application</h2>
+ <p class="a">Please enter the following information:</p>
 
 </div>
 
@@ -38,7 +38,7 @@
 <input class = "inputtxt" type="text" id="city" name="city"><br><br>
 
 <label class = "label">State</label><br>
-<select name="state" id="state">
+<select class="select" name="state" id="state">
 	<option value="AL">Alabama</option>
 	<option value="AK">Alaska</option>
 	<option value="AZ">Arizona</option>
@@ -92,7 +92,7 @@
 	<option value="WY">Wyoming</option>
 </select><br><br>
 
-<label class = "label">Zip Code (with 4 digit sub-code)</label><br>
+<label class = "label">Zip Code</label><br>
 <input class = "inputtxt" type="text" id="zipcode" name="zipcode"><br><br>
 
 <label class = "label">Initial Deposit Amount</label><br>
@@ -161,7 +161,18 @@ function formcheck(){
 	return result;
 }
 
+function showCorrectionPopup(original, corrected) {
+    const msg = `
+        Your Input: 
+		${original.acctadd1} ${original.acctadd2}
+		${original.city}, ${original.state} ${original.zipcode}
 
+        Suggested Correction: 
+		${corrected.line1} 
+		${corrected.city}, ${corrected.state} ${corrected.postalCode}
+    `;
+    alert(msg);
+}
 
 document.getElementById('dataform').addEventListener('submit', async (e) => {
 	e.preventDefault();
@@ -191,12 +202,28 @@ document.getElementById('dataform').addEventListener('submit', async (e) => {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ fname, lname, ssn, acctadd1, acctadd2, city, state, zipcode, initdep, accttype })
-	});
-
-	const result = await response.text();
-	alert(result);
-});
-
+	})
+	.then(response => response.json())
+	.then(data => {
+    if (data.validatedAddress && data.validatedAddress.data) {
+		if(data.addressMatch == false){
+			showCorrectionPopup(data.original, {
+				line1: data.validatedAddress.data.line1,
+				line2: data.validatedAddress.data.line2 || '',
+				city: data.validatedAddress.data.city,
+				state: data.validatedAddress.data.provinceOrState,
+				postalCode: data.validatedAddress.data.postalOrZip,
+			});
+		}
+		else{
+			alert("Data submission complete");
+		}
+    } else {
+        alert("Address validation failed.");
+    }
+})
+.catch(error => console.error("Fetch error:", error));
+})
 
 
 </script>
