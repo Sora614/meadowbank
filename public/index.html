@@ -117,46 +117,73 @@ function formcheck(){
 	var result = true;
 
 	let a = document.forms["dataform"]["fname"].value;
-  	if (a == "") {
-    	alert("First Name must be filled out");
-    result = false;
-  	}
+		if (a == "") {
+			alert("First Name must be filled out");
+		result = false;
+		}
 
 	let b = document.forms["dataform"]["lname"].value;
-  	if (b == "") {
-    	alert("Last Name must be filled out");
-    result = false;
-  	}
+		if (b == "") {
+			alert("Last Name must be filled out");
+		result = false;
+		}
 
 	let c = document.forms["dataform"]["ssn"].value;
-  	if (c == "") {
-    	alert("Social Security Number must be filled out");
-    result = false;
-  	}
+		c = parseInt(c);
+		if (c == "") {
+			alert("Social Security Number must be filled out");
+		result = false;
+		}
+		if (Number.isInteger(c) == false) {
+			alert("Social Security Number must be all numbers");
+		result = false;
+		}
+		if (c.toString().length != 9) {
+			alert("Social Security Number must be a 9 digit number");
+		result = false;
+		}
 
 	let d = document.forms["dataform"]["acctadd1"].value;
-  	if (d == "") {
-    	alert("Address Line 1 must be filled out");
-    result = false;
-  	}
+		if (d == "") {
+			alert("Address Line 1 must be filled out");
+		result = false;
+		}
 
 	let e = document.forms["dataform"]["city"].value;
-  	if (e == "") {
-    	alert("City must be filled out");
-    result = false;
-  	}
+		if (e == "") {
+			alert("City must be filled out");
+		result = false;
+		}
 
 	let f = document.forms["dataform"]["zipcode"].value;
-  	if (f == "") {
-    	alert("Zip Code must be filled out");
-    result = false;
-  	}
+		f = parseInt(f);
+		if (f == "") {
+			alert("Zip Code must be filled out");
+		result = false;
+		}
+		if (Number.isInteger(f) == false) {
+			alert("Zip Code must be all numbers");
+		result = false;
+		}
+		if (f.toString().length != 5) {
+			alert("Zip Code must be 5 numbers long");
+		result = false;
+		}
 
 	let g = document.forms["dataform"]["initdep"].value;
-  	if (g == "") {
-    	alert("Initial Deposit must be filled out");
-    result = false;
-  	}
+		g = parseInt(g);
+		if (g == "") {
+			alert("Initial Deposit must be filled out");
+		result = false;
+		}
+		if (Number.isInteger(g) == false) {
+			alert("Initial deposit must be a whole number");
+		result = false;
+		}
+		if (g < 1) {
+			alert("Initial Deposit must be more than 0");
+		result = false;
+		}
 
 	return result;
 }
@@ -203,26 +230,28 @@ document.getElementById('dataform').addEventListener('submit', async (e) => {
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ fname, lname, ssn, acctadd1, acctadd2, city, state, zipcode, initdep, accttype })
 	})
-	.then(response => response.json())
-	.then(data => {
-    if (data.validatedAddress && data.validatedAddress.data) {
-		if(data.addressMatch == false){
+	.then(response => response.text())
+  	.then(text => {
+		let data;
+		try {
+			data = JSON.parse(text);
 			showCorrectionPopup(data.original, {
 				line1: data.validatedAddress.data.line1,
-				line2: data.validatedAddress.data.line2 || '',
 				city: data.validatedAddress.data.city,
 				state: data.validatedAddress.data.provinceOrState,
 				postalCode: data.validatedAddress.data.postalOrZip,
 			});
+		} catch {
+			data = text;
+			alert(data);
 		}
-		else{
-			alert("Data submission complete");
-		}
-    } else {
-        alert("Address validation failed.");
-    }
-})
-.catch(error => console.error("Fetch error:", error));
+  	})
+
+
+  .catch(error => {
+    console.error("Error handling response:", error);
+  });
+
 })
 
 

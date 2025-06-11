@@ -91,38 +91,40 @@ app.post('/insert', async (req, res) => {
   console.log("Validating address...");
   const validatedAddress = await validateAddress(`${acctadd1}`,`${acctadd2}`,`${city}`,`${state}`,`${zipcode}`);
 
-  const addline = `${acctadd1} ${acctadd2}`;
+  if (validatedAddress.data.postalOrZip != null) {
 
-  const addressMatch = 
-  addline.replace(/\s+/g, '').toLowerCase() === validatedAddress.data.line1.replace(/\s+/g, '').toLowerCase() &&
-  city.replace(/\s+/g, '').toLowerCase() === validatedAddress.data.city.replace(/\s+/g, '').toLowerCase() &&
-  zipcode.replace(/\s+/g, '').toLowerCase() === validatedAddress.data.postalOrZip.replace(/\s+/g, '').toLowerCase();
+    console.log("Validated Address Object:", validatedAddress);
 
-  if (validatedAddress) {
-      console.log("Validated Address Object:", validatedAddress);
+    const addressMatch = 
+    validatedAddress.data.line1.toLowerCase().includes(acctadd1.toLowerCase()) &&
+    validatedAddress.data.city.toLowerCase().includes(city.toLowerCase()) &&
+    validatedAddress.data.postalOrZip.replace(/\s/g, '').toLowerCase() === zipcode.replace(/\s/g, '').toLowerCase();
+
+    if (addressMatch){
+
+      try {
+        await sql.connect(config);
+        await sql.query(`INSERT INTO Data VALUES ('${fname}','${lname}','${ssn}','${acctadd1}','${acctadd2}','${city}','${state}','${zipcode}',${initdep},'${accttype}');`);
+        res.send('Data inserted successfully');
+      } catch (err) {
+
+        console.error('Insert error:', err);
+        res.status(500).send(`Database error: ${err.message}`);
+
+      } finally {
+        await sql.close();
+      }
+    } else {
+
       res.json({
           original: { acctadd1, acctadd2, city, state, zipcode },
           validatedAddress,
           addressMatch
       });
-  } else {
-      res.status(400).json({ error: "Address verification failed." });
-  }
-
-  if (addressMatch){
-
-    console.log("Submission initiated");
-
-    try {
-      await sql.connect(config);
-      await sql.query(`INSERT INTO Data VALUES ('${fname}','${lname}','${ssn}','${acctadd1}','${acctadd2}','${city}','${state}','${zipcode}',${initdep},'${accttype}');`);
-      res.send('Data inserted successfully');
-    } catch (err) {
-      console.error('Insert error:', err);
-      res.status(500).send(`Database error: ${err.message}`);
-    } finally {
-      await sql.close();
     }
+
+  } else {
+      res.status(400).json(`Address verification failed, no match found.`);
   }
 });
 
