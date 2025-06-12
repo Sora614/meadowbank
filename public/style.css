@@ -11,7 +11,7 @@ h2.a {
 }
 
 p.a{
-    font: bold 15px verdana;
+    font: 15px verdana;
 }
 
 label.label{
@@ -37,5 +37,6 @@ input.sbutton:focus{
 }
 
 select.select{
-    width: 500px;
+    width: 505px;
+    border-radius: 4px; 
 }
