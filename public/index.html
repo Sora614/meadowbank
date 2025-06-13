@@ -198,8 +198,17 @@ function showCorrectionPopup(original, corrected) {
         Suggested Correction: 
 		${corrected.line1} 
 		${corrected.city}, ${corrected.state} ${corrected.postalCode}
+
+		Click 'OK' to autofill with the suggested address
     `;
-    alert(msg);
+    if (confirm(msg)){
+
+		document.getElementById("acctadd1").value = corrected.line1;
+		document.getElementById("acctadd2").value = "";
+		document.getElementById("city").value = corrected.city;
+		document.getElementById("state").value = corrected.state;
+		document.getElementById("zipcode").value = corrected.postalCode;
+	}
 }
 
 document.getElementById('dataform').addEventListener('submit', async (e) => {
