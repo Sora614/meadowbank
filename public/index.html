@@ -221,7 +221,7 @@ let videoStream;
 
 function startCamera() {
 	const video = document.getElementById('cameraDisplay');
-	navigator.mediaDevices.getUserMedia({ video: true })
+	navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } }})
 		.then(stream => {
 			videoStream = stream;
 			video.srcObject = stream;
