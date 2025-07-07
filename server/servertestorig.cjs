@@ -3,6 +3,43 @@ const app = express();
 const sql = require('mssql');
 const cors = require('cors');
 const fetch = require('node-fetch').default;
+const idanalyzer = require('idanalyzer2');
+const router = express.Router();
+const scanner = idanalyzer.scanner;
+
+app.use(express.static('public'));
+app.use(cors({
+    origin: 'meadowbank-ejh5aueyfpa8f9e7.centralus-01.azurewebsites.net',
+    methods: ['POST','GET','OPTIONS'],
+    allowedHeaders: ['Content-Type']
+}));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Unhandled Error:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Promise Rejection:', reason);
+});
+
+const config = {
+  user: "ServerSubmit@meadowbank.database.windows.net",
+  password: "MeadowbankCRUD123",
+  server: "meadowbank.database.windows.net",
+  database: "Meadowbank-SQL",
+  options: {
+    encrypt: true,
+    trustServerCertificate: true
+  }
+};
 
 const validateAddress = async (street, street2, city, state, zip) => {
 
@@ -33,40 +70,6 @@ try {
     return null;
 }
 };
-
-app.use(express.json());
-app.use(express.static('public'));
-app.use(cors({
-    origin: 'meadowbank-ejh5aueyfpa8f9e7.centralus-01.azurewebsites.net',
-    methods: ['POST','GET','OPTIONS'],
-    allowedHeaders: ['Content-Type']
-}));
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-
-process.on('uncaughtException', (err) => {
-    console.error('Unhandled Error:', err);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Promise Rejection:', reason);
-});
-
-const config = {
-  user: "ServerSubmit@meadowbank.database.windows.net",
-  password: "MeadowbankCRUD123",
-  server: "meadowbank.database.windows.net",
-  database: "Meadowbank-SQL",
-  options: {
-    encrypt: true,
-    trustServerCertificate: true
-  }
-};
-
-
 
 app.use(express.static(__dirname + '/public'));
 app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
@@ -127,4 +130,26 @@ app.post('/insert', async (req, res) => {
       res.status(400).json(`Address verification failed, no match found.`);
   }
 });
+
+router.post('/scan-id', async (req, res) => {
+  const base64Image = req.body.image.replace(/^data:image\/jpeg;base64,/, '');
+  const scanner = new scanner('1QFA5Zeud3Diet2K0Lt8Nt3WaLmpEhN9');
+
+  try {
+    const result = await scanner.quickScan(base64Image, '', true);
+    console.log(result);
+    const nameParts = result.result.name.split(' ');
+    res.json({
+      firstName: nameParts[0],
+      lastName: nameParts.slice(1).join(' '),
+      idNumber: result.result.number
+    });
+  } catch (err) {
+    console.error("ID Analyzer error:", err);
+    res.status(500).json({ error: 'ID scan failed' });
+  }
+});
+
+module.exports = router;
+
 

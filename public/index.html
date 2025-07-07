@@ -8,14 +8,20 @@
 
 <body>
 
-<div class="Header">
 
- <h1 class="a">Welcome To Meadow Bank</h1>
- <h2 class="a">Account Application</h2>
- <p class="a">Please enter the following information:</p>
 
-</div>
+<h1 class="a">Welcome To Meadow Bank</h1>
+<h2 class="a">Account Application</h2>
+<p class="a">Please enter the following information:</p><br>
 
+<p class="a">Autofill with driver's license options:</p><br>
+<button class='a' onclick="startCamera()">Start Camera</button>
+<button class='a' onclick="captureAndScanID()">Capture & Scan</button><br>
+<video id="cameraDisplay" autoplay></video><br>
+
+<canvas id="documentCanvas" style="display:none;"></canvas>
+
+<p class="a">Or enter information manually:</p><br>
 <form class = "form" method="post" id="dataform">
 
 <label class = "label">First Name</label><br>
@@ -211,6 +217,49 @@ function showCorrectionPopup(original, corrected) {
 	}
 }
 
+let videoStream;
+
+function startCamera() {
+	const video = document.getElementById('cameraDisplay');
+	navigator.mediaDevices.getUserMedia({ video: true })
+		.then(stream => {
+			videoStream = stream;
+			video.srcObject = stream;
+		})
+		.catch(err => {
+			console.error("Camera access denied:", err);
+			alert("Unable to access camera.");
+		});
+}
+
+async function captureAndScanID() {
+	const canvas = document.getElementById('documentCanvas');
+	const video = document.getElementById('cameraDisplay');
+	canvas.width = video.videoWidth;
+	canvas.height = video.videoHeight;
+	canvas.getContext('2d').drawImage(video, 0, 0);
+	const imageData = canvas.toDataURL('image/jpeg');
+
+	try {
+		const response = await fetch('/scan-id', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ image: imageData })
+		});
+		const data = await response.json();
+
+		document.getElementById('fname').value = data.firstName || '';
+		document.getElementById('lname').value = data.lastName || '';
+
+		alert("ID data scanned and autofilled!");
+
+	} catch (err) {
+		console.error("ID scan failed:", err);
+		alert("Failed to scan ID. Please try again.");
+	}
+}
+
+
 document.getElementById('dataform').addEventListener('submit', async (e) => {
 	e.preventDefault();
 	if (!formcheck()) {
@@ -259,7 +308,7 @@ document.getElementById('dataform').addEventListener('submit', async (e) => {
 			`<p class = "a">
 				<b>Your Submission</b><br>
 				<b>Name:</b> ${fname} ${lname}<br>
-				<b>SSN Redacted</b><br>
+				<b>SSN:</b> Redacted<br>
 				<b>Address:</b><br>
 				${acctadd1} ${acctadd2}<br>
 				${city}, ${state} ${zipcode}<br>

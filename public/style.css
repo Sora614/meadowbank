@@ -1,33 +1,40 @@
 body {
-    background: url("/images/bg.png");
+    background-color: rgb(27, 27, 27);
 }
 
 h1.a {
     font: bold 24px verdana;
+    color:rgb(255, 225, 165);
 }
 
 h2.a {
     font: bold 18px verdana;
+    color:rgb(255, 225, 165);
 }
 
 p.a{
     font: 15px verdana;
+    color:rgb(255, 225, 165);
 }
 
 label.label{
     font: 12px verdana;
+    color:rgb(255, 225, 165);
 }
 
 label.inputradio{
     font: 12px verdana;
+    color:rgb(255, 225, 165);
 }
 
 input.inputtxt{
     width: 500px;
     border-radius: 4px; 
+    background-color: rgb(255, 225, 165);
 }
 
 input.sbutton{
+    background-color: rgb(255, 225, 165);
     padding: 8px 28px;
     border-radius: 4px;   
 }
@@ -36,7 +43,18 @@ input.sbutton:focus{
     background-color:green;
 }
 
+button.a{
+    background-color: rgb(255, 225, 165);
+    padding: 8px 28px;
+    border-radius: 4px;   
+}
+
+button.a:focus{
+    background-color:green;
+}
+
 select.select{
-    width: 505px;
+    background-color: rgb(255, 225, 165);
+    width: 508px;
     border-radius: 4px; 
 }
