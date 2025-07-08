@@ -219,18 +219,33 @@ function showCorrectionPopup(original, corrected) {
 
 let videoStream;
 
-function startCamera() {
-	const video = document.getElementById('cameraDisplay');
-	navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } }})
-		.then(stream => {
-			videoStream = stream;
-			video.srcObject = stream;
-		})
-		.catch(err => {
-			console.error("Camera access denied:", err);
-			alert("Unable to access camera.");
-		});
+async function startCamera() {
+  const video = document.getElementById('cameraDisplay');
+
+  try {
+    // Try to use the back camera first
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { exact: "environment" } },
+      audio: false
+    });
+    video.srcObject = stream;
+  } catch (err) {
+    console.warn("Back camera not available, falling back to default:", err.message);
+
+    try {
+      // Fallback to any available camera
+      const fallbackStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false
+      });
+      video.srcObject = fallbackStream;
+    } catch (fallbackErr) {
+      console.error("No camera available:", fallbackErr);
+      alert("Unable to access any camera.");
+    }
+  }
 }
+
 
 async function captureAndScanID() {
 	const canvas = document.getElementById('documentCanvas');
@@ -254,8 +269,8 @@ async function captureAndScanID() {
 		alert("ID data scanned and autofilled!");
 
 	} catch (err) {
-		console.error("ID scan failed:", err);
-		alert("Failed to scan ID. Please try again.");
+		console.error("ID Analyzer error:", err.response?.data || err.message || err);
+ 		res.status(500).json({ error: 'ID scan failed' });
 	}
 }
 

@@ -3,9 +3,9 @@ const app = express();
 const sql = require('mssql');
 const cors = require('cors');
 const fetch = require('node-fetch').default;
-const idanalyzer = require('idanalyzer2');
+const idanalyzer = require('idanalyzer2').default;
 const router = express.Router();
-const scanner = idanalyzer.scanner;
+const Scanner = idanalyzer.Scanner;
 
 app.use(express.static('public'));
 app.use(cors({
@@ -43,32 +43,32 @@ const config = {
 
 const validateAddress = async (street, street2, city, state, zip) => {
 
-console.log(`${street} ${street2}, ${city}, ${state} ${zip}`);
+  console.log(`${street} ${street2}, ${city}, ${state} ${zip}`);
 
-try {
-    const response = await fetch('https://api.postgrid.com/v1/addver/verifications', {
-        method: 'POST',
-        headers: {
-            'x-api-key': 'live_sk_7hS1d5rjodBBF1DJb4YMQi',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            address: {
-              line1: street,
-              line2: street2,
-              city: city,
-              provinceOrState: state,
-              postalCode: zip,
-              country: 'US'
-            }
-        })
-    });
+  try {
+      const response = await fetch('https://api.postgrid.com/v1/addver/verifications', {
+          method: 'POST',
+          headers: {
+              'x-api-key': 'live_sk_7hS1d5rjodBBF1DJb4YMQi',
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              address: {
+                line1: street,
+                line2: street2,
+                city: city,
+                provinceOrState: state,
+                postalCode: zip,
+                country: 'US'
+              }
+          })
+      });
 
-    const data = await response.json();
-    return data;
-} catch (error) {
-    return null;
-}
+      const data = await response.json();
+      return data;
+  } catch (error) {
+      return null;
+  }
 };
 
 app.use(express.static(__dirname + '/public'));
@@ -131,23 +131,25 @@ app.post('/insert', async (req, res) => {
   }
 });
 
-router.post('/scan-id', async (req, res) => {
+app.post('/scan-id', async (req, res) => {
   const base64Image = req.body.image.replace(/^data:image\/jpeg;base64,/, '');
-  const scanner = new scanner('1QFA5Zeud3Diet2K0Lt8Nt3WaLmpEhN9');
+  const scanner = new Scanner('1QFA5Zeud3Diet2K0Lt8Nt3WaLmpEhN9');
 
   try {
-    const result = await scanner.quickScan(base64Image, '', true);
-    console.log(result);
-    const nameParts = result.result.name.split(' ');
-    res.json({
-      firstName: nameParts[0],
-      lastName: nameParts.slice(1).join(' '),
-      idNumber: result.result.number
-    });
-  } catch (err) {
-    console.error("ID Analyzer error:", err);
-    res.status(500).json({ error: 'ID scan failed' });
-  }
+  const result = await scanner.quickScan(base64Image, '', true);
+  console.log("Raw scan result:", result);
+
+  const nameParts = result.result.name.split(' ');
+  res.json({
+    firstName: nameParts[0],
+    lastName: nameParts.slice(1).join(' '),
+    idNumber: result.result.number
+  });
+} catch (err) {
+  console.error("ID Analyzer error:", err.response?.data || err.message || err);
+  res.status(500).json({ error: 'ID scan failed' });
+}
+
 });
 
 module.exports = router;
