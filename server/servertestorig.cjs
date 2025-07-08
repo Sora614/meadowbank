@@ -133,7 +133,7 @@ app.post('/insert', async (req, res) => {
 
 app.post('/scan-id', async (req, res) => {
   const base64Image = req.body.image.replace(/^data:image\/jpeg;base64,/, '');
-  const scanner = new Scanner('1QFA5Zeud3Diet2K0Lt8Nt3WaLmpEhN9');
+  const scanner = new Scanner('J5ywEMedTOC6VxzrQgdeiVb6FDLPeHTF');
 
   try {
   const result = await scanner.quickScan(base64Image, '', true);
