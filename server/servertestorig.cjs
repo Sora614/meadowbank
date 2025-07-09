@@ -136,15 +136,25 @@ app.post('/scan-id', async (req, res) => {
   const scanner = new Scanner('J5ywEMedTOC6VxzrQgdeiVb6FDLPeHTF');
 
   try {
-  const result = await scanner.quickScan(base64Image, '', true);
-  console.log("Raw scan result:", result);
+  const result = await scanner.quickScan('base64Image', '', true); //replace link with base64Image if testing works
+  console.log("Raw scan result:", JSON.stringify(result, null, 2));
 
-  const nameParts = result.result.name.split(' ');
-  res.json({
-    firstName: nameParts[0],
-    lastName: nameParts.slice(1).join(' '),
-    idNumber: result.result.number
-  });
+  const data = result.data || {};
+
+  const firstName = data.firstName?.[0]?.value || '';
+  const lastName = data.lastName?.[0]?.value || '';
+  const address1 = data.address1?.[0]?.value || '';
+
+  var city = data.address2?.[0]?.value || '';
+  city = city.split(',')[0].trim();
+
+  const stateShort = data.stateShort?.[0]?.value || '';
+
+  var postcode = data.postcode?.[0]?.value || '';
+  postcode = postcode.slice(0, 5);
+  
+  res.json({firstName, lastName, address1, city, stateShort, postcode})
+
 } catch (err) {
   console.error("ID Analyzer error:", err.response?.data || err.message || err);
   res.status(500).json({ error: 'ID scan failed' });

@@ -265,8 +265,12 @@ async function captureAndScanID() {
 
 		document.getElementById('fname').value = data.firstName || '';
 		document.getElementById('lname').value = data.lastName || '';
+		document.getElementById('acctadd1').value = data.address1 || '';
+		document.getElementById('city').value = data.city || '';
+		document.getElementById('state').value = data.stateShort || '';
+		document.getElementById('zipcode').value = data.postcode || '';
 
-		alert("ID data scanned and autofilled!");
+		alert("ID data scanned, found fields have been autofilled. Please fill the rest of the fields.");
 
 	} catch (err) {
 		console.error("ID Analyzer error:", err.response?.data || err.message || err);
