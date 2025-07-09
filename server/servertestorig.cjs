@@ -136,7 +136,7 @@ app.post('/scan-id', async (req, res) => {
   const scanner = new Scanner('J5ywEMedTOC6VxzrQgdeiVb6FDLPeHTF');
 
   try {
-  const result = await scanner.quickScan('base64Image', '', true); //replace link with base64Image if testing works
+  const result = await scanner.quickScan(base64Image, '', true); //replace link with base64Image if testing works
   console.log("Raw scan result:", JSON.stringify(result, null, 2));
 
   const data = result.data || {};
