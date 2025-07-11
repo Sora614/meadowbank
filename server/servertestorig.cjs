@@ -6,6 +6,7 @@ const fetch = require('node-fetch').default;
 const idanalyzer = require('idanalyzer2').default;
 const router = express.Router();
 const Scanner = idanalyzer.Scanner;
+require('dotenv').config();
 
 app.use(express.static('public'));
 app.use(cors({
@@ -133,7 +134,7 @@ app.post('/insert', async (req, res) => {
 
 app.post('/scan-id', async (req, res) => {
   const base64Image = req.body.image.replace(/^data:image\/jpeg;base64,/, '');
-  const scanner = new Scanner('J5ywEMedTOC6VxzrQgdeiVb6FDLPeHTF');
+  const scanner = new Scanner(process.env.IDANALYZER_API_KEY);
 
   try {
   const result = await scanner.scan(
