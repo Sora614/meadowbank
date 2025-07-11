@@ -136,7 +136,7 @@ app.post('/scan-id', async (req, res) => {
   const scanner = new Scanner('J5ywEMedTOC6VxzrQgdeiVb6FDLPeHTF');
 
   try {
-  const result = await scanner.quickScan(
+  const result = await scanner.scan(
   base64Image,
   {
     analyze: true,
