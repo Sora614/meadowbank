@@ -14,7 +14,7 @@
 	<h2 class="a">Account Application</h2>
 	<p class="a">Please enter the following information:</p><br>
 
-	<p class="a">Autofill with driver's license options:</p><br>
+	<p class="a">Autofill with driver's license barcode:</p><br>
 
 	<button id="startCameraBtn" class="a">Start Camera</button>
 	<button id="scanBtn" class="a">Capture & Scan</button><br>
@@ -123,9 +123,20 @@
 <script type="module">
 	console.log("Script loaded");
 
-	import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm';
+	import {
+	BrowserMultiFormatReader
+	} from 'https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm';
 
-	const reader = new BrowserMultiFormatReader();
+	import {
+	BarcodeFormat,
+	DecodeHintType
+	} from 'https://cdn.jsdelivr.net/npm/@zxing/library@latest/+esm';
+
+	const hints = new Map();
+	hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.PDF_417]);
+
+	const reader = new BrowserMultiFormatReader(hints);
+
     const fileInput = document.getElementById('fileInput');
     const preview = document.getElementById('preview');
     const resultBox = document.getElementById('result');
