@@ -297,7 +297,8 @@
 		context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
 		try {
-			const result = await reader.decodeFromCanvas(canvas);
+			//const result = await reader.decodeFromCanvas(canvas);
+			reader.decodeFromVideoDevice(null, videoElement, callbackFn);
 			const rawText = result.getText();
 
 			console.log("Barcode decoded:", rawText);
