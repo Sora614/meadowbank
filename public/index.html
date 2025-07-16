@@ -295,12 +295,13 @@
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
 
+	await new Promise(resolve => setTimeout(resolve, 500));
+
 	context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
 	try {
 		const result = await reader.decodeFromCanvas(canvas);
 		const rawText = result.getText();
-
 		console.log("Barcode decoded:", rawText);
 
 		const parsed = parseAAMVA(rawText);
@@ -311,7 +312,7 @@
 		document.getElementById('city').value = parsed.city || '';
 		document.getElementById('state').value = parsed.state || '';
 		document.getElementById('zipcode').value = parsed.zipcode || '';
-		alert("Scan successful, please check all fields for accuracy and fill the remaining fields.");
+		alert("Scan successful, please verify input and fill out remaining fields.");
 		} else {
 		alert("Scan successful, but unable to parse known fields.");
 		}
@@ -320,6 +321,7 @@
 		alert("Unable to decode barcode. Try again or adjust lighting.");
 	}
 	}
+
 
 	document.getElementById('dataform').addEventListener('submit', async (e) => {
 		e.preventDefault();
