@@ -4,9 +4,6 @@ const sql = require('mssql');
 const cors = require('cors');
 const fetch = require('node-fetch').default;
 
-const IdAnalyzer = require('idanalyzer2').default;
-const { Scanner, Profile } = IdAnalyzer;
-
 const router = express.Router();
 require('dotenv').config();
 
@@ -18,11 +15,6 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-const scanner = new Scanner(process.env.IDANALYZER_KEY);
-scanner.throwApiException(true);
-const profile = new Profile(Profile.SECURITY_LOW); 
-scanner.setProfile(profile);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
@@ -137,57 +129,5 @@ app.post('/insert', async (req, res) => {
       res.status(400).json(`Address verification failed, no match found.`);
   }
 });
-
-app.post('/scan-id', async (req, res) => {
-
-  if (!req.body.image || typeof req.body.image !== 'string' || req.body.image.length < 100) {
-    console.error("Invalid image input:", req.body.image);
-    return res.status(400).json({ error: 'Invalid image input' });
-  }
-  const base64Image = req.body.image.replace(/^data:image\/jpeg;base64,/, '');
-
-  console.log("Scan input type:", typeof base64Image);
-  console.log("Scan input preview:", base64Image?.slice?.(0, 30));
-  console.log("base64Image length:", base64Image.length);
-
-  try {
-    const result = await scanner.quickScan(base64Image, {
-      barcode: true
-    });
-    console.log("Raw scan result:", JSON.stringify(result, null, 2));
-
-    const data = result.data || {};
-
-    function getSafeValue(fieldArray) {
-      const val = fieldArray?.[0]?.value;
-      return typeof val === 'string' ? val : String(val || '');
-    }
-
-    const firstName = getSafeValue(data.firstName);
-    const lastName = getSafeValue(data.lastName);
-    const address1 = getSafeValue(data.address1);
-
-    let city = getSafeValue(data.address2);
-    if(typeof(city) == String){
-      city = city.includes(',') ? city.split(',')[0].trim() : city;
-    }
-    const stateShort = getSafeValue(data.stateShort);
-
-    let postcode = getSafeValue(data.postcode);
-    if(typeof(postcode) == String){
-      postcode = postcode.substring(0, 5);
-    }
-
-    res.json({firstName, lastName, address1, city, stateShort, postcode})
-
-  } catch (err) {
-    console.error("ID Analyzer error:", err.response?.data || err.message || err);
-    console.error("Scan failed — raw error:", err);
-    res.status(500).json({ error: 'ID scan failed' });
-  }
-
-});
-
-module.exports = router;
 
 
