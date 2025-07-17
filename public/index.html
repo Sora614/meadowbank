@@ -17,8 +17,7 @@
 
 	<p class="a">Autofill with driver's license barcode:</p><br>
 
-	<button id="startCameraBtn" class="a">Start Camera</button>
-	<button id="scanBtn" class="a">Capture & Scan</button><br>
+	<button id="startCameraBtn" class="a">Start Scan</button>
 
 	<div id="dbrScannerContainer" style="width:600px; height:400px;">
 		<div class="dce-video-container" style="width:600px; height:400px;"></div>
@@ -344,17 +343,33 @@
 		try {
 			const scanner = await Dynamsoft.DBR.BarcodeScanner.createInstance();
 
-			// Mount scanner UI using the correct method
 			scanner.setUIElement(document.getElementById("dbrScannerContainer"));
 
-			// Handle barcode results
 			scanner.onFrameRead = results => {
-			for (let result of results) {
-				console.log("Decoded:", result.barcodeText);
-				document.getElementById("output").textContent = result.barcodeText;
-			}
-			};
+				for (let result of results) {
+					console.log("Detected barcode:", result.barcodeText);
 
+					const parsed = parseAAMVA(result.barcodeText);
+					if (!parsed || !parsed.firstName) {
+					console.warn("Barcode parsed but missing key fields.");
+					alert("Barcode parsed but missing key fields.")
+					continue;
+					}
+
+					document.getElementById('fname').value = parsed.firstName || '';
+					document.getElementById('lname').value = parsed.lastName || '';
+					document.getElementById('acctadd1').value = parsed.address1 || '';
+					document.getElementById('city').value = parsed.city || '';
+					document.getElementById('state').value = parsed.state || '';
+					document.getElementById('zipcode').value = parsed.zipcode || '';
+
+					console.log("Form fields populated from scan.");
+					alert("Form fields have been populated. Please verify and fill the remaining fields.")
+					
+					scanner.close().then(() => console.log("📷 Scanner closed after successful read."));
+					break; 
+				}
+			};
 			// Show live camera feed
 			await scanner.open();
 		} catch (err) {
@@ -432,7 +447,6 @@
 	document.addEventListener('DOMContentLoaded', () => {
 
 		document.getElementById('startCameraBtn')?.addEventListener('click', startDynamsoftScanner);
-		document.getElementById('scanBtn')?.addEventListener('click', startDynamsoftScanner);
 
 	});
 

@@ -60,10 +60,13 @@ select.select{
 }
 
 #dbrScannerContainer {
-  width: 600px;
-  height: 400px;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
   position: relative;
   overflow: hidden;
+  border-radius: 8px;
 }
 
 .dce-video-container {
