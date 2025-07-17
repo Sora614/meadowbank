@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="style.css">
 <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+<script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
 
 <body>
 
-
+	<img id="testImage" src="/images/barcode.png" style="width:300px;" />
 
 	<h1 class="a">Welcome To Meadow Bank</h1>
 	<h2 class="a">Account Application</h2>
@@ -137,9 +138,6 @@
 
 	const reader = new BrowserMultiFormatReader(hints);
 
-    const fileInput = document.getElementById('fileInput');
-    const preview = document.getElementById('preview');
-    const resultBox = document.getElementById('result');
 
 	function formcheck(){
 
@@ -239,29 +237,25 @@
 		}
 	}
 
-	let videoStream;
-
 	async function startCamera() {
-		console.log("startCamera triggered");
 		const video = document.getElementById('cameraDisplay');
 
 		try {
-			// Try to use the back camera first
 			const stream = await navigator.mediaDevices.getUserMedia({
 			video: { facingMode: { exact: "environment" } },
 			audio: false
 			});
 			video.srcObject = stream;
+			console.log("Camera started after button press");
 		} catch (err) {
-			console.warn("Back camera not available, falling back to default:", err.message);
-
+			console.warn("Environment camera not available:", err.message);
 			try {
-			// Fallback to any available camera
 			const fallbackStream = await navigator.mediaDevices.getUserMedia({
 				video: true,
 				audio: false
 			});
 			video.srcObject = fallbackStream;
+			console.log("Fallback camera started");
 			} catch (fallbackErr) {
 			console.error("No camera available:", fallbackErr);
 			alert("Unable to access any camera.");
@@ -269,57 +263,79 @@
 		}
 	}
 
-	function parseAAMVA(text) {
-	const lines = text.split('\n');
-	const data = {};
+	function captureFrameToCanvas(videoId = 'cameraDisplay', canvasId = 'documentCanvas') {
+		const video = document.getElementById(videoId);
+		const canvas = document.getElementById(canvasId);
+		const context = canvas.getContext('2d');
 
-	for (const line of lines) {
+		canvas.width = video.videoWidth;
+		canvas.height = video.videoHeight;
+		context.drawImage(video, 0, 0, canvas.width, canvas.height);
+		return canvas;
+	}
+
+	function parseAAMVA(text) {
+		const lines = text.split('\n');
+		const data = {};
+		for (const line of lines) {
 		if (line.startsWith('DAC')) data.firstName = line.slice(3).trim();
 		if (line.startsWith('DCS')) data.lastName = line.slice(3).trim();
 		if (line.startsWith('DAG')) data.address1 = line.slice(3).trim();
 		if (line.startsWith('DAI')) data.city = line.slice(3).trim();
 		if (line.startsWith('DAJ')) data.state = line.slice(3).trim();
 		if (line.startsWith('DAK')) data.zipcode = line.slice(3).trim();
+		}
+		return Object.keys(data).length ? data : null;
 	}
 
-	return Object.keys(data).length ? data : null;
-	}
-
-	async function captureAndScanID() {
-	console.log("captureAndScanID triggered");
-
-	const video = document.getElementById('cameraDisplay');
-	const canvas = document.getElementById('documentCanvas');
-	const context = canvas.getContext('2d');
-
-	canvas.width = video.videoWidth;
-	canvas.height = video.videoHeight;
-
-	await new Promise(resolve => setTimeout(resolve, 500));
-
-	context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-	try {
-		const result = await reader.decodeFromCanvas(canvas);
-		const rawText = result.getText();
-		console.log("Barcode decoded:", rawText);
-
-		const parsed = parseAAMVA(rawText);
-		if (parsed) {
+	function autofillForm(parsed) {
+		if (!parsed) {
+		alert("✅ Scan successful, but unable to parse known fields.");
+		return;
+		}
 		document.getElementById('fname').value = parsed.firstName || '';
 		document.getElementById('lname').value = parsed.lastName || '';
 		document.getElementById('acctadd1').value = parsed.address1 || '';
 		document.getElementById('city').value = parsed.city || '';
 		document.getElementById('state').value = parsed.state || '';
 		document.getElementById('zipcode').value = parsed.zipcode || '';
-		alert("Scan successful, please verify input and fill out remaining fields.");
-		} else {
-		alert("Scan successful, but unable to parse known fields.");
-		}
-	} catch (err) {
+	}
+
+	async function captureAndScanID() {
+		console.log("captureAndScanID triggered");
+		const canvas = captureFrameToCanvas();
+		await new Promise(resolve => setTimeout(resolve, 300)); // give camera a moment to stabilize
+
+		try {
+		const result = await reader.decodeFromCanvas(canvas);
+		const rawText = result.getText();
+		console.log("Barcode decoded:", rawText);
+
+		const parsed = parseAAMVA(rawText);
+		autofillForm(parsed);
+		} catch (err) {
 		console.error("Scan failed:", err);
 		alert("Unable to decode barcode. Try again or adjust lighting.");
+		}
 	}
+
+
+	async function testBarcode(){
+		const img = document.getElementById("testImage");
+
+		img.onload = async () => {
+		console.log("Image loaded");
+		try {
+			const result = await reader.decodeFromImageElement(img);
+			console.log("Decoded:", result.getText());
+		} catch (err) {
+			console.error("Static image scan failed:", err);
+		}
+		};
+
+		img.onerror = () => {
+		console.error("Image failed to load");
+		};
 	}
 
 
@@ -388,12 +404,11 @@
 	})
 
 	document.addEventListener('DOMContentLoaded', () => {
-		console.log("DOM fully loaded");
 
 		document.getElementById('startCameraBtn')?.addEventListener('click', startCamera);
-		document.getElementById('scanBtn')?.addEventListener('click', captureAndScanID);
-	});
+		document.getElementById('scanBtn')?.addEventListener('click', () => captureAndScanID());
 
+	});
 
 </script>
 </body>
