@@ -9,7 +9,7 @@
 
 <body>
 
-	<img id="testImage" src="/images/barcode.png" style="width:300px;" />
+	<img id="testImage" src="/images/barcode.png" style="display:none;" />
 
 	<h1 class="a">Welcome To Meadow Bank</h1>
 	<h2 class="a">Account Application</h2>
@@ -303,41 +303,41 @@
 
 	async function captureAndScanID() {
 		console.log("captureAndScanID triggered");
+
 		const canvas = captureFrameToCanvas();
-		await new Promise(resolve => setTimeout(resolve, 300)); // give camera a moment to stabilize
+		await new Promise(resolve => setTimeout(resolve, 500));
+
+		const preview = document.createElement('img');
+		preview.src = canvas.toDataURL();
+		preview.style.width = '300px';
+		document.body.appendChild(preview);
 
 		try {
-		const result = await reader.decodeFromCanvas(canvas);
+			const result = await reader.decodeFromCanvas(canvas);
+			const rawText = result.getText();
+			console.log("Barcode decoded:", rawText);
+
+			const parsed = parseAAMVA(rawText);
+			autofillForm(parsed);
+		} catch (err) {
+			console.error("Scan failed:", err);
+			alert("No barcode found. Hold the ID steady, zoom in slightly, and retry.");
+		}
+	}
+
+	async function decodeImage(img) {
+		try {
+		const result = await reader.decodeFromImageElement(img);
 		const rawText = result.getText();
-		console.log("Barcode decoded:", rawText);
+		console.log("Decoded text:", rawText);
 
 		const parsed = parseAAMVA(rawText);
 		autofillForm(parsed);
 		} catch (err) {
-		console.error("Scan failed:", err);
-		alert("Unable to decode barcode. Try again or adjust lighting.");
+		console.error("Image scan failed:", err);
+		alert("Unable to decode barcode from image.");
 		}
 	}
-
-
-	async function testBarcode(){
-		const img = document.getElementById("testImage");
-
-		img.onload = async () => {
-		console.log("Image loaded");
-		try {
-			const result = await reader.decodeFromImageElement(img);
-			console.log("Decoded:", result.getText());
-		} catch (err) {
-			console.error("Static image scan failed:", err);
-		}
-		};
-
-		img.onerror = () => {
-		console.error("Image failed to load");
-		};
-	}
-
 
 	document.getElementById('dataform').addEventListener('submit', async (e) => {
 		e.preventDefault();
@@ -406,7 +406,7 @@
 	document.addEventListener('DOMContentLoaded', () => {
 
 		document.getElementById('startCameraBtn')?.addEventListener('click', startCamera);
-		document.getElementById('scanBtn')?.addEventListener('click', () => captureAndScanID());
+		document.getElementById('scanBtn')?.addEventListener('click', captureAndScanID);
 
 	});
 
