@@ -58,3 +58,23 @@ select.select{
     width: 508px;
     border-radius: 4px; 
 }
+
+#dbrScannerContainer {
+  width: 600px;
+  height: 400px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dce-video-container {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  position: relative;
+}
+
+.dce-video-container video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
